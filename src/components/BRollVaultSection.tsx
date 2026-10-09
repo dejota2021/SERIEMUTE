@@ -60,7 +60,7 @@ export const BRollVaultSection: React.FC = () => {
     }
   });
 
-  // UI state
+  // UI state: starts closed by default as requested
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -364,33 +364,36 @@ export const BRollVaultSection: React.FC = () => {
               {/* Toggle Collapse */}
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-2 bg-stone-900 hover:bg-stone-800 border border-stone-800 rounded-xl text-stone-400 hover:text-stone-200 transition-colors cursor-pointer"
-                title={isCollapsed ? 'Desplegar todos los recursos' : 'Minimizar sección'}
+                className="px-3 py-2 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 rounded-xl text-amber-300 hover:text-amber-200 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+                title={isCollapsed ? 'Desplegar todos los recursos' : 'Cerrar sección'}
               >
+                <span>{isCollapsed ? 'Abrir Álbum' : 'Cerrar Álbum'}</span>
                 {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
               </button>
             </div>
           </div>
 
-          {/* Quick Format Badges Row */}
-          <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-stone-800/60 text-xs">
-            <span className="text-stone-400 font-mono text-[11px]">Recursos por formato:</span>
-            <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-amber-300 font-mono">
-              🎬 {formatCounts.Video} Videos
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-sky-300 font-mono">
-              📸 {formatCounts.Foto} Fotos
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-rose-300 font-mono">
-              🎙️ {formatCounts.Audio} Audios / Foley
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-emerald-300 font-mono">
-              📄 {formatCounts.Documento} Documentos
-            </span>
-            <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-purple-300 font-mono">
-              📱 {formatCounts.Pantalla} Pantallas
-            </span>
-          </div>
+          {/* Quick Format Badges Row (visible when expanded) */}
+          {!isCollapsed && (
+            <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-stone-800/60 text-xs animate-in fade-in">
+              <span className="text-stone-400 font-mono text-[11px]">Recursos por formato:</span>
+              <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-amber-300 font-mono">
+                🎬 {formatCounts.Video} Videos
+              </span>
+              <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-sky-300 font-mono">
+                📸 {formatCounts.Foto} Fotos
+              </span>
+              <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-rose-300 font-mono">
+                🎙️ {formatCounts.Audio} Audios / Foley
+              </span>
+              <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-emerald-300 font-mono">
+                📄 {formatCounts.Documento} Documentos
+              </span>
+              <span className="px-2 py-0.5 rounded-md bg-stone-900/80 border border-stone-800 text-[11px] text-purple-300 font-mono">
+                📱 {formatCounts.Pantalla} Pantallas
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Content Body (Collapsible) */}

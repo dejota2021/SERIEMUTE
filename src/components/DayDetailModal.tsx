@@ -193,38 +193,51 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
               </div>
 
               {/* Toggle View & Font Size */}
-              <div className="flex items-center gap-4">
-                <div className="flex p-0.5 bg-neutral-900 border border-neutral-800 rounded">
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="flex p-1 bg-neutral-900/90 border border-neutral-800 rounded-xl">
                   <button
                     onClick={() => setTeleprompterView('script')}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${teleprompterView === 'script' ? 'bg-amber-600 text-white' : 'text-neutral-400'}`}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                      teleprompterView === 'script'
+                        ? 'bg-amber-500 text-neutral-950 shadow-md font-bold'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
                   >
-                    Guión
+                    <Film className="h-3.5 w-3.5" />
+                    <span>Guión Hablado Palabra por Palabra</span>
                   </button>
                   <button
                     onClick={() => setTeleprompterView('notes')}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${teleprompterView === 'notes' ? 'bg-amber-600 text-white' : 'text-neutral-400'}`}
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                      teleprompterView === 'notes'
+                        ? 'bg-amber-500 text-neutral-950 shadow-md font-bold'
+                        : 'text-neutral-400 hover:text-white'
+                    }`}
                   >
-                    Anotaciones
+                    <MessageSquare className="h-3.5 w-3.5" />
+                    <span>Apartado de Anotaciones Guardadas</span>
                   </button>
                 </div>
 
-                <div className="flex items-center p-0.5 bg-neutral-900 border border-neutral-800 rounded">
+                <div className="flex items-center p-1 bg-neutral-900 border border-neutral-800 rounded-xl">
                   <button
                     onClick={() => setFontSize('normal')}
-                    className={`px-2 py-1 text-xs rounded ${fontSize === 'normal' ? 'bg-neutral-800 text-white' : 'text-neutral-400'}`}
+                    className={`px-2.5 py-1 text-xs rounded-lg transition-colors ${fontSize === 'normal' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-400'}`}
+                    title="Texto normal"
                   >
                     A
                   </button>
                   <button
                     onClick={() => setFontSize('large')}
-                    className={`px-2 py-1 text-sm font-semibold rounded ${fontSize === 'large' ? 'bg-neutral-800 text-white' : 'text-neutral-400'}`}
+                    className={`px-2.5 py-1 text-sm font-semibold rounded-lg transition-colors ${fontSize === 'large' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-400'}`}
+                    title="Texto grande"
                   >
                     A+
                   </button>
                   <button
                     onClick={() => setFontSize('huge')}
-                    className={`px-2 py-1 text-base font-bold rounded ${fontSize === 'huge' ? 'bg-neutral-800 text-white' : 'text-neutral-400'}`}
+                    className={`px-2.5 py-1 text-base font-bold rounded-lg transition-colors ${fontSize === 'huge' ? 'bg-neutral-800 text-white font-bold' : 'text-neutral-400'}`}
+                    title="Texto extra grande"
                   >
                     A++
                   </button>
@@ -244,7 +257,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                       GANCHO DE ENTRADA (0-3s)
                     </div>
                     <p className="text-amber-200 font-medium text-xl sm:text-2xl leading-relaxed">
-                      "{day.hookOptions[0]}"
+                      &quot;{day.hookOptions[0]}&quot;
                     </p>
 
                     <div className="text-neutral-500 font-mono text-xs uppercase tracking-widest pt-4">
@@ -271,9 +284,11 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                   </>
                 ) : (
                   <>
-                    <div className="text-amber-400/80 font-mono text-xs uppercase tracking-widest">
-                      ANOTACIONES GUARDADAS
+                    <div className="text-amber-400 font-mono text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                      <MessageSquare className="h-4 w-4 text-amber-400" />
+                      <span>APARTADO DE ANOTACIONES GUARDADAS</span>
                     </div>
+
                     <div
                       className={`text-white leading-relaxed font-light whitespace-pre-wrap ${
                         fontSize === 'normal'
@@ -283,7 +298,16 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                           : 'text-2xl sm:text-3xl sm:leading-loose'
                       }`}
                     >
-                      {notesText || <span className="text-neutral-600 italic">No hay anotaciones guardadas para este día.</span>}
+                      {notesText ? (
+                        notesText
+                      ) : (
+                        <div className="text-neutral-500 italic py-8 border border-neutral-800/60 rounded-xl bg-neutral-900/30">
+                          <p className="text-base sm:text-lg">No hay anotaciones guardadas para este día.</p>
+                          <p className="text-xs font-mono text-neutral-600 mt-2">
+                            Puedes escribirlas o editarlas en la vista principal del día y se sincronizan al instante en la nube.
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
