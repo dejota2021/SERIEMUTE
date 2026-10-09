@@ -7,9 +7,11 @@ import { CreationFormulaSection } from './components/CreationFormulaSection';
 import { GeminiAssistantModal } from './components/GeminiAssistantModal';
 import { ExportModal } from './components/ExportModal';
 import { FirebaseModal } from './components/FirebaseModal';
+import { AddDayModal } from './components/AddDayModal';
 import {
   syncDayToFirestore,
   syncAllDaysToFirestore,
+  deleteDayFromFirestore,
   subscribeToFirestoreDays,
   getStoredFirebaseConfig,
   initFirebase,
@@ -27,7 +29,7 @@ import {
   Database
 } from 'lucide-react';
 
-const STORAGE_KEY = 'mute_strategy_days_v1';
+const STORAGE_KEY = 'mute_strategy_days_v2';
 
 export default function App() {
   const [days, setDays] = useState<DayStrategy[]>(() => {
@@ -35,7 +37,7 @@ export default function App() {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === 30) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           return parsed;
         }
       }
@@ -51,6 +53,7 @@ export default function App() {
   const [aiInitialNote, setAiInitialNote] = useState<string>('');
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isFirebaseConnected, setIsFirebaseConnected] = useState<boolean>(false);
   const [syncStatus, setSyncStatus] = useState<'connecting' | 'connected' | 'syncing' | 'error'>('connecting');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -279,6 +282,30 @@ export default function App() {
     handleUpdateDay(dayId, { notes });
   };
 
+  // Add a new Day card
+  const handleAddDay = (newDay: DayStrategy) => {
+    setDays((prev) => {
+      const updated = [...prev, newDay].sort((a, b) => a.day - b.day);
+      return updated;
+    });
+    // Immediately persist and sync
+    syncDayToFirestore(newDay);
+    showToast(`¡Día ${newDay.day} agregado exitosamente! ✓`);
+  };
+
+  // Delete an existing Day card
+  const handleDeleteDay = (dayId: number, dayNumber?: number, dayTitle?: string) => {
+    const dayToDelete = daysRef.current.find((d) => d.id === dayId);
+    const num = dayNumber ?? dayToDelete?.day ?? dayId;
+
+    setDays((prev) => prev.filter((d) => d.id !== dayId));
+    if (selectedDay && selectedDay.id === dayId) {
+      setSelectedDay(null);
+    }
+    deleteDayFromFirestore(dayId, num);
+    showToast(`Día ${num} eliminado del calendario ✓`);
+  };
+
   const handleOpenAiForDay = (day: DayStrategy, notes?: string) => {
     setAiPreselectedDay(day);
     setAiInitialNote(notes || day.notes || '');
@@ -408,6 +435,8 @@ export default function App() {
           onUpdateNotes={handleUpdateNotes}
           onSelectDay={(day) => setSelectedDay(day)}
           onQuickAiRefine={(day) => handleOpenAiForDay(day)}
+          onDeleteDay={handleDeleteDay}
+          onOpenAddModal={() => setIsAddModalOpen(true)}
         />
 
         {/* Creation Formula & B-Roll Vault Checklist */}
@@ -424,6 +453,15 @@ export default function App() {
         onUpdateNotes={handleUpdateNotes}
         onUpdateDay={handleUpdateDay}
         onRefineWithAi={(day, notes) => handleOpenAiForDay(day, notes)}
+        onDeleteDay={handleDeleteDay}
+      />
+
+      {/* Add New Day / Card Modal */}
+      <AddDayModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onAddDay={handleAddDay}
+        existingDays={days}
       />
 
       {/* Gemini AI Assistant Modal */}

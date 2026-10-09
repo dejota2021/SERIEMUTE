@@ -3,6 +3,9 @@ import {
   getFirestore,
   doc,
   setDoc,
+  deleteDoc,
+  updateDoc,
+  deleteField,
   collection,
   onSnapshot,
   Firestore,
@@ -214,7 +217,38 @@ export async function syncDayToFirestore(day: DayStrategy): Promise<boolean> {
   }
 }
 
-// Batch sync all 30 days to Firestore
+// Delete a single day card from Firestore
+export async function deleteDayFromFirestore(dayId: number, dayNumber?: number): Promise<boolean> {
+  const db = getDb();
+  if (!db) {
+    console.warn('[Firestore] Firestore no está inicializado');
+    return false;
+  }
+
+  try {
+    const campaignRef = doc(db, 'campaigns', CAMPAIGN_ID);
+    const dayRef = doc(db, 'campaigns', CAMPAIGN_ID, 'days', `day_${dayNumber ?? dayId}`);
+
+    await Promise.all([
+      deleteDoc(dayRef).catch((e) => console.warn('[Firestore] Error borrando doc de día:', e)),
+      updateDoc(campaignRef, {
+        [`daysState.${dayId}`]: deleteField(),
+        updatedAt: new Date().toISOString(),
+      }).catch((e) => console.warn('[Firestore] Error actualizando daysState al borrar:', e)),
+    ]);
+
+    console.log(`[Firestore] Día ${dayNumber ?? dayId} eliminado con éxito de planmute`);
+    return true;
+  } catch (err: any) {
+    console.error(`[Firestore] Error al eliminar día ${dayId}:`, err);
+    if (onSyncErrorCallback) {
+      onSyncErrorCallback(err);
+    }
+    return false;
+  }
+}
+
+// Batch sync all days to Firestore
 export async function syncAllDaysToFirestore(days: DayStrategy[]): Promise<boolean> {
   const db = getDb();
   if (!db) {

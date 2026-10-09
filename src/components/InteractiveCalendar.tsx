@@ -14,7 +14,8 @@ import {
   Copy,
   Trash2,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Plus
 } from 'lucide-react';
 
 interface InteractiveCalendarProps {
@@ -25,6 +26,8 @@ interface InteractiveCalendarProps {
   onUpdateNotes: (dayId: number, notes: string) => void;
   onSelectDay: (day: DayStrategy) => void;
   onQuickAiRefine: (day: DayStrategy) => void;
+  onDeleteDay: (dayId: number, dayNumber?: number, dayTitle?: string) => void;
+  onOpenAddModal: () => void;
 }
 
 export const InteractiveCalendar: React.FC<InteractiveCalendarProps> = ({
@@ -35,6 +38,8 @@ export const InteractiveCalendar: React.FC<InteractiveCalendarProps> = ({
   onUpdateNotes,
   onSelectDay,
   onQuickAiRefine,
+  onDeleteDay,
+  onOpenAddModal,
 }) => {
   const [selectedPhase, setSelectedPhase] = useState<number | 'all'>('all');
   const [selectedStatus, setSelectedStatus] = useState<'all' | 'unrecorded' | 'recorded' | 'reviewed' | 'published'>('all');
@@ -110,18 +115,29 @@ export const InteractiveCalendar: React.FC<InteractiveCalendarProps> = ({
           <div className="flex items-center gap-2 text-xs font-mono text-amber-400 mb-1">
             <span>PLANILLA DE CONTENIDO</span>
             <span aria-hidden="true">·</span>
-            <span>30 DÍAS DE MUTE</span>
+            <span>{days.length} DÍAS DE MUTE</span>
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold text-stone-100 tracking-tight">
             Calendario de Videos
           </h2>
           <p className="text-xs sm:text-sm text-stone-400 mt-1 max-w-2xl">
-            Despliega u oculta la información de cada tarjeta para una lectura cómoda. Tacha los días grabados y deja tus apuntes guardados.
+            Gestiona la narrativa: agrega o elimina tarjetas, despliega u oculta la información, tacha los días grabados y deja tus apuntes guardados.
           </p>
         </div>
 
-        {/* Global Toolbar: Expand/Collapse All */}
-        <div className="flex flex-wrap items-center gap-2">
+        {/* Global Toolbar: Add Card & Expand/Collapse All */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Button: Agregar Tarjeta */}
+          <button
+            type="button"
+            onClick={onOpenAddModal}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-stone-950 bg-amber-400 hover:bg-amber-300 rounded-xl transition-all shadow-md shadow-amber-500/20 hover:scale-[1.02] cursor-pointer"
+            title="Crear y agregar una nueva tarjeta de video"
+          >
+            <Plus className="h-4 w-4 stroke-[2.5]" />
+            <span>Agregar Tarjeta</span>
+          </button>
+
           {/* Expand / Collapse All */}
           <div className="flex items-center p-0.5 bg-stone-900 border border-stone-800 rounded-xl text-xs">
             <button
@@ -157,7 +173,7 @@ export const InteractiveCalendar: React.FC<InteractiveCalendarProps> = ({
                 : 'text-stone-400 hover:text-stone-200'
             }`}
           >
-            Todas las Fases (30)
+            Todas las Fases ({days.length})
           </button>
           {PHASES.map((p) => (
             <button
@@ -222,8 +238,8 @@ export const InteractiveCalendar: React.FC<InteractiveCalendarProps> = ({
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="text-[11px] font-mono text-stone-500">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[11px] font-mono text-stone-500 mr-0.5">
                         {day.targetDuration}
                       </span>
 
@@ -239,6 +255,25 @@ export const InteractiveCalendar: React.FC<InteractiveCalendarProps> = ({
                         ) : (
                           <ChevronDown className="h-4 w-4" />
                         )}
+                      </button>
+
+                      {/* Delete Individual Card Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (
+                            window.confirm(
+                              `¿Estás seguro de eliminar la tarjeta del Día ${day.day}: "${day.title}"?`
+                            )
+                          ) {
+                            onDeleteDay(day.id, day.day, day.title);
+                          }
+                        }}
+                        className="p-1 text-stone-500 hover:text-rose-400 rounded hover:bg-rose-950/40 transition-colors cursor-pointer"
+                        title={`Eliminar tarjeta del Día ${day.day}`}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </div>
@@ -476,7 +511,7 @@ export const InteractiveCalendar: React.FC<InteractiveCalendarProps> = ({
             }}
             className="mt-3 px-3 py-1.5 text-xs text-amber-300 bg-stone-900 border border-stone-800 rounded-lg hover:bg-stone-800 cursor-pointer"
           >
-            Mostrar todos los 30 días
+            Mostrar todos los {days.length} días
           </button>
         </div>
       )}

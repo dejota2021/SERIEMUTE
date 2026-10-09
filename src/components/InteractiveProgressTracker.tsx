@@ -41,7 +41,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
             Tablero Dinámico: Grabación, Revisión & Publicación
           </h3>
           <p className="text-xs text-stone-400 mt-0.5">
-            Haz clic en los contadores para filtrar la lista al instante, o pulsa cualquier día (1 a 30) para ver su ficha.
+            Haz clic en los contadores para filtrar la lista al instante, o pulsa cualquier tarjeta para ver su ficha y teleprompter.
           </p>
         </div>
 
@@ -52,7 +52,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
             className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-300 bg-amber-950/60 hover:bg-amber-900/60 border border-amber-800/60 rounded-lg transition-colors cursor-pointer"
           >
             <Filter className="h-3 w-3" />
-            <span>Mostrar los 30 días</span>
+            <span>Mostrar todos los días</span>
           </button>
         )}
       </div>
@@ -188,7 +188,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         <div>
           <div className="flex justify-between text-xs font-mono text-stone-400 mb-1">
             <span>PROGRESO DE RODAJE:</span>
-            <span className="text-emerald-400 font-bold tabular-nums">{recordedCount} de 30 grabados ({recordedPct}%)</span>
+            <span className="text-emerald-400 font-bold tabular-nums">{recordedCount} de {totalDays} grabados ({recordedPct}%)</span>
           </div>
           <div className="h-2 w-full bg-stone-950 rounded-full overflow-hidden border border-stone-800">
             <div
@@ -201,7 +201,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         <div>
           <div className="flex justify-between text-xs font-mono text-stone-400 mb-1">
             <span>PROGRESO DE REVISIÓN:</span>
-            <span className="text-purple-400 font-bold tabular-nums">{reviewedCount} de 30 revisados ({reviewedPct}%)</span>
+            <span className="text-purple-400 font-bold tabular-nums">{reviewedCount} de {totalDays} revisados ({reviewedPct}%)</span>
           </div>
           <div className="h-2 w-full bg-stone-950 rounded-full overflow-hidden border border-stone-800">
             <div
@@ -214,7 +214,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         <div>
           <div className="flex justify-between text-xs font-mono text-stone-400 mb-1">
             <span>PROGRESO DE DIFUSIÓN EN REDES:</span>
-            <span className="text-sky-400 font-bold tabular-nums">{publishedCount} de 30 publicados ({publishedPct}%)</span>
+            <span className="text-sky-400 font-bold tabular-nums">{publishedCount} de {totalDays} publicados ({publishedPct}%)</span>
           </div>
           <div className="h-2 w-full bg-stone-950 rounded-full overflow-hidden border border-stone-800">
             <div
@@ -225,11 +225,11 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         </div>
       </div>
 
-      {/* Interactive 30-Day Punch-Tape / Micro-Timeline */}
+      {/* Interactive Micro-Timeline */}
       <div className="mt-6 pt-4 border-t border-stone-800/70">
         <div className="flex items-center justify-between text-xs text-stone-400 mb-2.5">
           <span className="font-mono uppercase text-[11px] text-amber-400/90 font-semibold">
-            Tira Interactiva de los 30 Días (Toca un día para abrirlo)
+            Tira Interactiva ({totalDays} Días · Toca un día para abrirlo)
           </span>
           <div className="hidden sm:flex items-center gap-3 text-[11px] font-mono">
             <span className="flex items-center gap-1">

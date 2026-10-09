@@ -33,6 +33,7 @@ interface DayDetailModalProps {
   onUpdateNotes: (dayId: number, notes: string) => void;
   onUpdateDay?: (dayId: number, updates: Partial<DayStrategy>) => void;
   onRefineWithAi: (day: DayStrategy, userNotes: string) => void;
+  onDeleteDay?: (dayId: number, dayNumber?: number, dayTitle?: string) => void;
 }
 
 export const DayDetailModal: React.FC<DayDetailModalProps> = ({
@@ -44,6 +45,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
   onUpdateNotes,
   onUpdateDay,
   onRefineWithAi,
+  onDeleteDay,
 }) => {
   if (!day) return null;
 
@@ -205,6 +207,27 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
+            {onDeleteDay && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (
+                    window.confirm(
+                      `¿Estás seguro de eliminar permanentemente la tarjeta del Día ${day.day}: "${day.title}"?`
+                    )
+                  ) {
+                    onDeleteDay(day.id, day.day, day.title);
+                    onClose();
+                  }
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-rose-400 hover:text-rose-200 bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/60 rounded-lg transition-colors cursor-pointer"
+                title={`Eliminar Día ${day.day}`}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Eliminar Día</span>
+              </button>
+            )}
+
             <button
               onClick={() => setTeleprompterActive(!teleprompterActive)}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
