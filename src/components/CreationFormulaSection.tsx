@@ -1,79 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { CREATION_FORMULA_STEPS, B_ROLL_VAULT_CHECKLIST } from '../data/strategyData';
+import React from 'react';
+import { CREATION_FORMULA_STEPS } from '../data/strategyData';
 import {
-  subscribeToFirestoreVault,
-  syncVaultToFirestore,
-  VaultSyncPayload,
-} from '../firebase';
-import {
-  CheckSquare,
-  Square,
   ShieldCheck,
   HeartHandshake,
   Eye,
   VolumeX,
-  Sparkles,
-  FolderArchive,
-  ArrowUpRight,
-  Cloud
+  Sparkles
 } from 'lucide-react';
 
 export const CreationFormulaSection: React.FC = () => {
-  // Synchronized state with Firebase Firestore & localStorage
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(() => {
-    try {
-      const saved = localStorage.getItem('mute_broll_checklist');
-      return saved ? JSON.parse(saved) : {};
-    } catch {
-      return {};
-    }
-  });
-
-  // Subscribe in real-time to Firestore Vault
-  useEffect(() => {
-    const unsubscribe = subscribeToFirestoreVault((remotePayload: VaultSyncPayload) => {
-      if (remotePayload.vaultChecked) {
-        setCheckedItems(remotePayload.vaultChecked);
-        try {
-          localStorage.setItem('mute_broll_checklist', JSON.stringify(remotePayload.vaultChecked));
-        } catch {
-          // ignore
-        }
-      }
-    });
-
-    return () => {
-      if (unsubscribe) unsubscribe();
-    };
-  }, []);
-
-  const toggleCheck = (id: string) => {
-    const updated = { ...checkedItems, [id]: !checkedItems[id] };
-    setCheckedItems(updated);
-    try {
-      localStorage.setItem('mute_broll_checklist', JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
-
-    // Instant real-time sync with Firebase Firestore
-    syncVaultToFirestore({
-      vaultChecked: updated,
-    });
-  };
-
-  const scrollToVault = () => {
-    const el = document.getElementById('vault');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
-
-  const totalVault = B_ROLL_VAULT_CHECKLIST.length;
-  const completedVault = B_ROLL_VAULT_CHECKLIST.filter((i) => !!checkedItems[i.id]).length;
-
   return (
     <section id="formula" className="py-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-neutral-900">
       {/* Title */}
@@ -198,93 +133,6 @@ export const CreationFormulaSection: React.FC = () => {
               Tu historia personal con FRUTAS es la metáfora de lo que millones de personas viven todos los días: empleados sonriendo a sus jefes con depresión, madres aparentando fortaleza frente a sus hijos, amigos que no se atreven a admitir que están en la ruina. Tú estás hablando por todos ellos.
             </p>
           </div>
-        </div>
-      </div>
-
-      {/* Synchronized Vault Quick View / Link to Top Vault */}
-      <div className="mt-14 rounded-2xl border border-neutral-800 bg-neutral-900/40 p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
-          <div>
-            <div className="flex items-center gap-2 text-xs font-mono text-amber-400">
-              <FolderArchive className="h-3.5 w-3.5" />
-              <span>CARPETA DE APOYO SINCRONIZADA</span>
-              <span className="text-neutral-600">·</span>
-              <span className="text-emerald-400 flex items-center gap-1 text-[11px]">
-                <Cloud className="h-3 w-3" />
-                En vivo (planmute)
-              </span>
-            </div>
-            <h3 className="text-xl sm:text-2xl font-bold text-white mt-1">
-              B-Roll & Archivo Vault: Álbum &quot;MUTE DOC&quot;
-            </h3>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Este inventario está activo y sincronizado en tiempo real al inicio de la aplicación para acceso inmediato.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded-lg text-xs font-mono">
-              <span className="text-neutral-400">Progreso:</span>
-              <span className="text-emerald-400 font-bold tabular-nums">{completedVault}</span>
-              <span className="text-neutral-600">/</span>
-              <span className="text-neutral-400 tabular-nums">{totalVault}</span>
-            </div>
-
-            <button
-              onClick={scrollToVault}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-medium rounded-lg transition-colors cursor-pointer"
-            >
-              <span>Ir al Vault al inicio</span>
-              <ArrowUpRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-6">
-          {B_ROLL_VAULT_CHECKLIST.slice(0, 8).map((item) => {
-            const isChecked = !!checkedItems[item.id];
-
-            return (
-              <div
-                key={item.id}
-                onClick={() => toggleCheck(item.id)}
-                className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
-                  isChecked
-                    ? 'border-emerald-800/40 bg-emerald-950/20'
-                    : 'border-neutral-800 bg-neutral-950/60 hover:border-neutral-700'
-                }`}
-              >
-                <div className="mt-0.5 text-neutral-400">
-                  {isChecked ? (
-                    <CheckSquare className="h-4 w-4 text-emerald-400" />
-                  ) : (
-                    <Square className="h-4 w-4 text-neutral-600" />
-                  )}
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] font-mono text-neutral-500 uppercase">
-                      {item.category}
-                    </span>
-                    <span className="text-[9px] font-mono px-1 py-0.2 rounded bg-neutral-900 text-neutral-400 border border-neutral-800">
-                      {item.format}
-                    </span>
-                  </div>
-                  <h4
-                    className={`text-xs font-semibold ${
-                      isChecked ? 'text-neutral-400 line-through' : 'text-neutral-100'
-                    }`}
-                  >
-                    {item.name}
-                  </h4>
-                  <p className="text-[11px] text-neutral-400 italic">
-                    💡 {item.tip}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
     </section>
