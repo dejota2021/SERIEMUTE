@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "StrategyDay": {
+      "title": "StrategyDay",
+      "description": "Un día de los 30 de la estrategia narrativa de MUTE con estado de grabación, publicación y notas.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number",
+          "description": "ID numérico del día (1 a 30)"
+        },
+        "day": {
+          "type": "number",
+          "description": "Número de día (1 a 30)"
+        },
+        "title": {
+          "type": "string",
+          "description": "Título conceptual del video"
+        },
+        "isRecorded": {
+          "type": "boolean",
+          "description": "Indica si el video del día ha sido grabado"
+        },
+        "isPublished": {
+          "type": "boolean",
+          "description": "Indica si el video ha sido publicado en redes"
+        },
+        "notes": {
+          "type": "string",
+          "description": "Anotaciones privadas guardadas para este día"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Fecha y hora de última actualización"
+        }
+      },
+      "required": ["id", "day", "isRecorded", "isPublished"]
+    },
+    "CampaignConfig": {
+      "title": "CampaignConfig",
+      "description": "Configuración global y sincronización de la campaña MUTE",
+      "type": "object",
+      "properties": {
+        "artist": {
+          "type": "string",
+          "description": "Nombre del artista"
+        },
+        "album": {
+          "type": "string",
+          "description": "Nombre del álbum"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp de última sincronización"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "/campaigns/{campaignId}/days/{dayId}": {
+      "schema": "StrategyDay",
+      "description": "Colección de los 30 días de la estrategia con notas y estados"
+    },
+    "/campaigns/{campaignId}": {
+      "schema": "CampaignConfig",
+      "description": "Documento raíz de la campaña MUTE"
+    }
+  }
+}

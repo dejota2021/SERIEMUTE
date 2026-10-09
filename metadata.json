@@ -1,0 +1,6 @@
+{
+  "name": "MUTE · Estrategia Narrativa 30 Días (dejota2021)",
+  "description": "Estrategia de lanzamiento y vulnerabilidad radical para el álbum MUTE de dejota2021: calendario de 30 días interactivo, fórmula de contenido orgánico, material de apoyo y notas guardadas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
