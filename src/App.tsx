@@ -134,6 +134,9 @@ export default function App() {
                   isReviewed: remote.isReviewed ?? false,
                   isPublished: remote.isPublished,
                   notes: remote.notes,
+                  title: remote.title || d.title,
+                  emotion: remote.emotion || d.emotion,
+                  scriptDraft: remote.scriptDraft || d.scriptDraft,
                 };
               }
               return d;
@@ -255,11 +258,11 @@ export default function App() {
     }
   };
 
-  // Immediate synchronous handling of Notes
-  const handleUpdateNotes = (dayId: number, notes: string) => {
+  // Immediate synchronous handling of Day custom fields (title, emotion, scriptDraft, notes)
+  const handleUpdateDay = (dayId: number, updates: Partial<DayStrategy>) => {
     const current = daysRef.current.find((d) => d.id === dayId);
     if (!current) return;
-    const updatedDay: DayStrategy = { ...current, notes };
+    const updatedDay: DayStrategy = { ...current, ...updates };
 
     setDays((prev) => prev.map((d) => (d.id === dayId ? updatedDay : d)));
 
@@ -267,8 +270,13 @@ export default function App() {
     syncDayToFirestore(updatedDay);
 
     if (selectedDay && selectedDay.id === dayId) {
-      setSelectedDay((prev) => (prev ? { ...prev, notes } : null));
+      setSelectedDay((prev) => (prev ? { ...prev, ...updates } : null));
     }
+  };
+
+  // Immediate synchronous handling of Notes
+  const handleUpdateNotes = (dayId: number, notes: string) => {
+    handleUpdateDay(dayId, { notes });
   };
 
   const handleOpenAiForDay = (day: DayStrategy, notes?: string) => {
@@ -414,6 +422,7 @@ export default function App() {
         onToggleReviewed={handleToggleReviewed}
         onTogglePublished={handleTogglePublished}
         onUpdateNotes={handleUpdateNotes}
+        onUpdateDay={handleUpdateDay}
         onRefineWithAi={(day, notes) => handleOpenAiForDay(day, notes)}
       />
 

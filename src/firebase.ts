@@ -166,6 +166,9 @@ export async function syncDayToFirestore(day: DayStrategy): Promise<boolean> {
     isReviewed: !!day.isReviewed,
     isPublished: !!day.isPublished,
     notes: day.notes || '',
+    title: day.title || '',
+    emotion: day.emotion || '',
+    scriptDraft: day.scriptDraft || '',
   };
 
   const dayPayload = {
@@ -173,10 +176,12 @@ export async function syncDayToFirestore(day: DayStrategy): Promise<boolean> {
     day: day.day,
     phase: day.phase,
     title: day.title,
+    emotion: day.emotion,
     isRecorded: !!day.isRecorded,
     isReviewed: !!day.isReviewed,
     isPublished: !!day.isPublished,
     notes: day.notes || '',
+    scriptDraft: day.scriptDraft || '',
     updatedAt: new Date().toISOString(),
   };
 
@@ -218,7 +223,7 @@ export async function syncAllDaysToFirestore(days: DayStrategy[]): Promise<boole
   }
 
   try {
-    const daysStateMap: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string }> = {};
+    const daysStateMap: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string; title: string; emotion: string; scriptDraft: string }> = {};
     const batch = writeBatch(db);
 
     days.forEach((day) => {
@@ -227,6 +232,9 @@ export async function syncAllDaysToFirestore(days: DayStrategy[]): Promise<boole
         isReviewed: !!day.isReviewed,
         isPublished: !!day.isPublished,
         notes: day.notes || '',
+        title: day.title || '',
+        emotion: day.emotion || '',
+        scriptDraft: day.scriptDraft || '',
       };
 
       const dayRef = doc(db, 'campaigns', CAMPAIGN_ID, 'days', `day_${day.day}`);
@@ -237,9 +245,12 @@ export async function syncAllDaysToFirestore(days: DayStrategy[]): Promise<boole
           day: day.day,
           phase: day.phase,
           title: day.title,
+          emotion: day.emotion,
           isRecorded: !!day.isRecorded,
+          isReviewed: !!day.isReviewed,
           isPublished: !!day.isPublished,
           notes: day.notes || '',
+          scriptDraft: day.scriptDraft || '',
           updatedAt: new Date().toISOString(),
         },
         { merge: true }
@@ -273,7 +284,7 @@ export async function syncAllDaysToFirestore(days: DayStrategy[]): Promise<boole
 // Real-time subscription combining instant document push with collection sync
 export function subscribeToFirestoreDays(
   onData: (
-    remoteDays: Record<number, { isRecorded: boolean; isReviewed?: boolean; isPublished: boolean; notes: string }>,
+    remoteDays: Record<number, { isRecorded: boolean; isReviewed?: boolean; isPublished: boolean; notes: string; title?: string; emotion?: string; scriptDraft?: string }>,
     count: number
   ) => void,
   onError?: (err: any) => void
@@ -295,8 +306,8 @@ export function subscribeToFirestoreDays(
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data && data.daysState && typeof data.daysState === 'object') {
-            const state = data.daysState as Record<string, { isRecorded?: boolean; isReviewed?: boolean; isPublished?: boolean; notes?: string }>;
-            const result: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string }> = {};
+            const state = data.daysState as Record<string, { isRecorded?: boolean; isReviewed?: boolean; isPublished?: boolean; notes?: string; title?: string; emotion?: string; scriptDraft?: string }>;
+            const result: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string; title?: string; emotion?: string; scriptDraft?: string }> = {};
             let count = 0;
             Object.keys(state).forEach((key) => {
               const numId = Number(key);
@@ -306,6 +317,9 @@ export function subscribeToFirestoreDays(
                   isReviewed: !!state[key]?.isReviewed,
                   isPublished: !!state[key]?.isPublished,
                   notes: state[key]?.notes || '',
+                  title: state[key]?.title,
+                  emotion: state[key]?.emotion,
+                  scriptDraft: state[key]?.scriptDraft,
                 };
                 count++;
               }
@@ -327,7 +341,7 @@ export function subscribeToFirestoreDays(
       daysCol,
       (snapshot) => {
         if (!snapshot.empty) {
-          const result: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string }> = {};
+          const result: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string; title?: string; emotion?: string; scriptDraft?: string }> = {};
           snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             if (data && typeof data.id === 'number') {
@@ -336,6 +350,9 @@ export function subscribeToFirestoreDays(
                 isReviewed: !!data.isReviewed,
                 isPublished: !!data.isPublished,
                 notes: data.notes || '',
+                title: data.title,
+                emotion: data.emotion,
+                scriptDraft: data.scriptDraft,
               };
             }
           });
