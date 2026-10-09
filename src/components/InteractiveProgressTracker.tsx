@@ -1,13 +1,14 @@
 import React from 'react';
-import { DayStrategy, PHASES } from '../data/strategyData';
-import { Film, CheckCircle2, AlertCircle, Sparkles, Filter, Check } from 'lucide-react';
+import { DayStrategy } from '../data/strategyData';
+import { Film, CheckCircle2, AlertCircle, Sparkles, Filter, Check, Eye } from 'lucide-react';
 
 interface InteractiveProgressTrackerProps {
   days: DayStrategy[];
-  activeStatusFilter: 'all' | 'unrecorded' | 'recorded' | 'published';
-  onSelectStatusFilter: (status: 'all' | 'unrecorded' | 'recorded' | 'published') => void;
+  activeStatusFilter: 'all' | 'unrecorded' | 'recorded' | 'reviewed' | 'published';
+  onSelectStatusFilter: (status: 'all' | 'unrecorded' | 'recorded' | 'reviewed' | 'published') => void;
   onSelectDay: (day: DayStrategy) => void;
   onToggleRecorded: (dayId: number) => void;
+  onToggleReviewed?: (dayId: number) => void;
   onTogglePublished: (dayId: number) => void;
 }
 
@@ -16,15 +17,15 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
   activeStatusFilter,
   onSelectStatusFilter,
   onSelectDay,
-  onToggleRecorded,
-  onTogglePublished,
 }) => {
   const totalDays = days.length;
   const recordedCount = days.filter((d) => d.isRecorded).length;
+  const reviewedCount = days.filter((d) => d.isReviewed).length;
   const publishedCount = days.filter((d) => d.isPublished).length;
   const pendingCount = totalDays - recordedCount;
 
   const recordedPct = Math.round((recordedCount / totalDays) * 100);
+  const reviewedPct = Math.round((reviewedCount / totalDays) * 100);
   const publishedPct = Math.round((publishedCount / totalDays) * 100);
 
   return (
@@ -37,7 +38,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
             <span>SEGUIMIENTO EN VIVO DE TU NARRATIVA</span>
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-stone-100 mt-0.5">
-            Tablero Dinámico de Grabación & Publicación
+            Tablero Dinámico: Grabación, Revisión & Publicación
           </h3>
           <p className="text-xs text-stone-400 mt-0.5">
             Haz clic en los contadores para filtrar la lista al instante, o pulsa cualquier día (1 a 30) para ver su ficha.
@@ -48,7 +49,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         {activeStatusFilter !== 'all' && (
           <button
             onClick={() => onSelectStatusFilter('all')}
-            className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-300 bg-amber-950/60 hover:bg-amber-900/60 border border-amber-800/60 rounded-lg transition-colors"
+            className="self-start sm:self-auto flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-amber-300 bg-amber-950/60 hover:bg-amber-900/60 border border-amber-800/60 rounded-lg transition-colors cursor-pointer"
           >
             <Filter className="h-3 w-3" />
             <span>Mostrar los 30 días</span>
@@ -56,8 +57,8 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         )}
       </div>
 
-      {/* 3 Interactive Clickable Counter Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mt-5">
+      {/* 4 Interactive Clickable Counter Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mt-5">
         {/* Card 1: Por Grabar */}
         <button
           type="button"
@@ -112,14 +113,45 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
             <span className="text-xs font-mono text-emerald-400/80 ml-auto">{recordedPct}%</span>
           </div>
           <div className="mt-2 flex items-center justify-between text-[11px] text-stone-400">
-            <span>Material listo para editar</span>
+            <span>Material grabado</span>
             <span className="text-emerald-400/90 font-medium group-hover:underline">
               {activeStatusFilter === 'recorded' ? 'Filtro activo ✓' : 'Clic para filtrar'}
             </span>
           </div>
         </button>
 
-        {/* Card 3: Publicados */}
+        {/* Card 3: Revisados */}
+        <button
+          type="button"
+          onClick={() =>
+            onSelectStatusFilter(activeStatusFilter === 'reviewed' ? 'all' : 'reviewed')
+          }
+          className={`p-4 rounded-xl border text-left transition-all group cursor-pointer ${
+            activeStatusFilter === 'reviewed'
+              ? 'border-purple-500 bg-purple-950/30 ring-2 ring-purple-500/30'
+              : 'border-stone-800 bg-stone-950/60 hover:border-stone-700 hover:bg-stone-900/60'
+          }`}
+        >
+          <div className="flex items-center justify-between text-xs text-stone-400">
+            <span className="font-mono uppercase tracking-wider text-[11px]">Videos Revisados</span>
+            <Eye className="h-4 w-4 text-purple-400 transition-transform group-hover:scale-110" />
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-2xl sm:text-3xl font-bold text-purple-400 tabular-nums">
+              {reviewedCount}
+            </span>
+            <span className="text-xs text-stone-500 font-mono">/ {totalDays}</span>
+            <span className="text-xs font-mono text-purple-400/80 ml-auto">{reviewedPct}%</span>
+          </div>
+          <div className="mt-2 flex items-center justify-between text-[11px] text-stone-400">
+            <span>Edición verificada</span>
+            <span className="text-purple-400/90 font-medium group-hover:underline">
+              {activeStatusFilter === 'reviewed' ? 'Filtro activo ✓' : 'Clic para filtrar'}
+            </span>
+          </div>
+        </button>
+
+        {/* Card 4: Publicados */}
         <button
           type="button"
           onClick={() =>
@@ -151,7 +183,7 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         </button>
       </div>
 
-      {/* Progress Bars for Both Streams */}
+      {/* Progress Bars for Streams */}
       <div className="mt-5 space-y-2.5 pt-4 border-t border-stone-800/70">
         <div>
           <div className="flex justify-between text-xs font-mono text-stone-400 mb-1">
@@ -162,6 +194,19 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
             <div
               className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-full transition-all duration-500"
               style={{ width: `${recordedPct}%` }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <div className="flex justify-between text-xs font-mono text-stone-400 mb-1">
+            <span>PROGRESO DE REVISIÓN:</span>
+            <span className="text-purple-400 font-bold tabular-nums">{reviewedCount} de 30 revisados ({reviewedPct}%)</span>
+          </div>
+          <div className="h-2 w-full bg-stone-950 rounded-full overflow-hidden border border-stone-800">
+            <div
+              className="h-full bg-gradient-to-r from-purple-600 to-purple-400 rounded-full transition-all duration-500"
+              style={{ width: `${reviewedPct}%` }}
             />
           </div>
         </div>
@@ -194,6 +239,9 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
               <span className="h-2 w-2 rounded-full bg-emerald-500" /> Grabado
             </span>
             <span className="flex items-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-purple-500" /> Revisado
+            </span>
+            <span className="flex items-center gap-1">
               <span className="h-2 w-2 rounded-full bg-sky-400" /> Publicado
             </span>
           </div>
@@ -203,11 +251,14 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
         <div className="grid grid-cols-6 sm:grid-cols-10 md:grid-cols-15 gap-1.5 sm:gap-2">
           {days.map((day) => {
             const isRecorded = day.isRecorded;
+            const isReviewed = day.isReviewed;
             const isPublished = day.isPublished;
 
             let badgeClass = 'bg-stone-950 text-stone-400 border-stone-800 hover:border-stone-600';
             if (isPublished) {
               badgeClass = 'bg-sky-950 text-sky-200 border-sky-600 font-bold shadow-sm shadow-sky-950';
+            } else if (isReviewed) {
+              badgeClass = 'bg-purple-950 text-purple-200 border-purple-600 font-bold shadow-sm shadow-purple-950';
             } else if (isRecorded) {
               badgeClass = 'bg-emerald-950 text-emerald-200 border-emerald-600 font-bold shadow-sm shadow-emerald-950';
             }
@@ -216,12 +267,12 @@ export const InteractiveProgressTracker: React.FC<InteractiveProgressTrackerProp
               <button
                 key={day.id}
                 onClick={() => onSelectDay(day)}
-                className={`py-1.5 px-1 rounded-md text-[11px] font-mono border transition-all text-center flex flex-col items-center justify-center gap-0.5 hover:scale-105 ${badgeClass}`}
-                title={`Día ${day.day}: ${day.title} (${isPublished ? 'Publicado' : isRecorded ? 'Grabado' : 'Pendiente'})`}
+                className={`py-1.5 px-1 rounded-md text-[11px] font-mono border transition-all text-center flex flex-col items-center justify-center gap-0.5 hover:scale-105 cursor-pointer ${badgeClass}`}
+                title={`Día ${day.day}: ${day.title} (${isPublished ? 'Publicado' : isReviewed ? 'Revisado' : isRecorded ? 'Grabado' : 'Pendiente'})`}
               >
                 <span>{day.day < 10 ? `0${day.day}` : day.day}</span>
                 <span className="text-[9px] opacity-75">
-                  {isPublished ? 'PUB' : isRecorded ? 'REC' : '·'}
+                  {isPublished ? 'PUB' : isReviewed ? 'REV' : isRecorded ? 'REC' : '·'}
                 </span>
               </button>
             );

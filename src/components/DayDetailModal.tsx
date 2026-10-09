@@ -18,13 +18,15 @@ import {
   Save,
   MessageSquare,
   Volume2,
-  Trash2
+  Trash2,
+  Eye
 } from 'lucide-react';
 
 interface DayDetailModalProps {
   day: DayStrategy | null;
   onClose: () => void;
   onToggleRecorded: (dayId: number) => void;
+  onToggleReviewed: (dayId: number) => void;
   onTogglePublished: (dayId: number) => void;
   onUpdateNotes: (dayId: number, notes: string) => void;
   onRefineWithAi: (day: DayStrategy, userNotes: string) => void;
@@ -34,6 +36,7 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
   day,
   onClose,
   onToggleRecorded,
+  onToggleReviewed,
   onTogglePublished,
   onUpdateNotes,
   onRefineWithAi,
@@ -332,10 +335,10 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
               </div>
 
               {/* Status Action Buttons */}
-              <div className="flex items-center gap-2.5 shrink-0">
+              <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                 <button
                   onClick={() => onToggleRecorded(day.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                     day.isRecorded
                       ? 'bg-emerald-950 text-emerald-300 border-emerald-700 shadow-sm'
                       : 'bg-neutral-900 text-neutral-300 border-neutral-800 hover:border-neutral-700'
@@ -346,8 +349,20 @@ export const DayDetailModal: React.FC<DayDetailModalProps> = ({
                 </button>
 
                 <button
+                  onClick={() => onToggleReviewed(day.id)}
+                  className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
+                    day.isReviewed
+                      ? 'bg-purple-950 text-purple-300 border-purple-700 shadow-sm'
+                      : 'bg-neutral-900 text-neutral-300 border-neutral-800 hover:border-neutral-700'
+                  }`}
+                >
+                  <Eye className="h-4 w-4" />
+                  <span>{day.isReviewed ? 'Video Revisado ✓' : 'Marcar como Revisado'}</span>
+                </button>
+
+                <button
                   onClick={() => onTogglePublished(day.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all ${
+                  className={`flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer ${
                     day.isPublished
                       ? 'bg-sky-950 text-sky-300 border-sky-700 shadow-sm'
                       : 'bg-neutral-900 text-neutral-300 border-neutral-800 hover:border-neutral-700'

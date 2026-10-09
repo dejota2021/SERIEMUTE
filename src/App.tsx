@@ -3,6 +3,7 @@ import { INITIAL_30_DAYS, DayStrategy } from './data/strategyData';
 import { InteractiveCalendar } from './components/InteractiveCalendar';
 import { BRollVaultSection } from './components/BRollVaultSection';
 import { DayDetailModal } from './components/DayDetailModal';
+import { CreationFormulaSection } from './components/CreationFormulaSection';
 import { GeminiAssistantModal } from './components/GeminiAssistantModal';
 import { ExportModal } from './components/ExportModal';
 import { FirebaseModal } from './components/FirebaseModal';
@@ -130,6 +131,7 @@ export default function App() {
                 return {
                   ...d,
                   isRecorded: remote.isRecorded,
+                  isReviewed: remote.isReviewed ?? false,
                   isPublished: remote.isPublished,
                   notes: remote.notes,
                 };
@@ -214,6 +216,24 @@ export default function App() {
 
     if (selectedDay && selectedDay.id === dayId) {
       setSelectedDay((prev) => (prev ? { ...prev, isRecorded: nextState } : null));
+    }
+  };
+
+  // Immediate synchronous handling of "Revisado"
+  const handleToggleReviewed = (dayId: number) => {
+    const current = daysRef.current.find((d) => d.id === dayId);
+    if (!current) return;
+    const nextState = !current.isReviewed;
+    const updatedDay: DayStrategy = { ...current, isReviewed: nextState };
+
+    setDays((prev) => prev.map((d) => (d.id === dayId ? updatedDay : d)));
+    showToast(nextState ? `Día ${updatedDay.day} marcado como Revisado ✓` : `Día ${updatedDay.day} desmarcado de Revisado`);
+
+    // Synchronous immediate push to Firestore
+    syncDayToFirestore(updatedDay);
+
+    if (selectedDay && selectedDay.id === dayId) {
+      setSelectedDay((prev) => (prev ? { ...prev, isReviewed: nextState } : null));
     }
   };
 
@@ -375,11 +395,15 @@ export default function App() {
         <InteractiveCalendar
           days={days}
           onToggleRecorded={handleToggleRecorded}
+          onToggleReviewed={handleToggleReviewed}
           onTogglePublished={handleTogglePublished}
           onUpdateNotes={handleUpdateNotes}
           onSelectDay={(day) => setSelectedDay(day)}
           onQuickAiRefine={(day) => handleOpenAiForDay(day)}
         />
+
+        {/* Creation Formula & B-Roll Vault Checklist */}
+        <CreationFormulaSection />
       </main>
 
       {/* Day Detail & Teleprompter Modal */}
@@ -387,6 +411,7 @@ export default function App() {
         day={selectedDay}
         onClose={() => setSelectedDay(null)}
         onToggleRecorded={handleToggleRecorded}
+        onToggleReviewed={handleToggleReviewed}
         onTogglePublished={handleTogglePublished}
         onUpdateNotes={handleUpdateNotes}
         onRefineWithAi={(day, notes) => handleOpenAiForDay(day, notes)}

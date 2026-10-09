@@ -17,6 +17,7 @@ export interface DayStrategy {
   copyInstagram: string;
   tags: string[];
   isRecorded: boolean;
+  isReviewed?: boolean;
   isPublished: boolean;
   notes: string;
   scheduledDate?: string;

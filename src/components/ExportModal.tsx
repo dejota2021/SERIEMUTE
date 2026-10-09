@@ -22,19 +22,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   const [importError, setImportError] = useState<string | null>(null);
 
   const recordedCount = days.filter((d) => d.isRecorded).length;
+  const reviewedCount = days.filter((d) => d.isReviewed).length;
   const publishedCount = days.filter((d) => d.isPublished).length;
 
   const generateMarkdownSummary = () => {
     let md = `# ESTRATEGIA NARRATIVA 30 DÍAS · ÁLBUM MUTE (dejota2021)\n`;
-    md += `*Progreso: ${recordedCount}/30 grabados · ${publishedCount}/30 publicados*\n\n`;
+    md += `*Progreso: ${recordedCount}/30 grabados · ${reviewedCount}/30 revisados · ${publishedCount}/30 publicados*\n\n`;
     md += `--------------------------------------------------\n\n`;
 
     days.forEach((d) => {
       const rec = d.isRecorded ? '[X] GRABADO' : '[ ] POR GRABAR';
+      const rev = d.isReviewed ? '[X] REVISADO' : '[ ] POR REVISAR';
       const pub = d.isPublished ? '[X] PUBLICADO' : '[ ] POR PUBLICAR';
       md += `### DÍA ${d.day < 10 ? `0${d.day}` : d.day}: ${d.title}\n`;
       md += `* Fase: ${d.phase} (${d.phaseTitle}) | Emoción: ${d.emotion} | Duración: ${d.targetDuration}\n`;
-      md += `* Estado: ${rec} | ${pub}\n`;
+      md += `* Estado: ${rec} | ${rev} | ${pub}\n`;
       md += `* Hook 1: "${d.hookOptions[0]}"\n`;
       md += `* Material Apoyo (Pasado): ${d.pastMaterial}\n`;
       md += `* Material Apoyo (Presente): ${d.presentMaterial}\n`;

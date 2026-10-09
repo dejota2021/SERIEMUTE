@@ -163,6 +163,7 @@ export async function syncDayToFirestore(day: DayStrategy): Promise<boolean> {
 
   const daySummary = {
     isRecorded: !!day.isRecorded,
+    isReviewed: !!day.isReviewed,
     isPublished: !!day.isPublished,
     notes: day.notes || '',
   };
@@ -173,6 +174,7 @@ export async function syncDayToFirestore(day: DayStrategy): Promise<boolean> {
     phase: day.phase,
     title: day.title,
     isRecorded: !!day.isRecorded,
+    isReviewed: !!day.isReviewed,
     isPublished: !!day.isPublished,
     notes: day.notes || '',
     updatedAt: new Date().toISOString(),
@@ -216,12 +218,13 @@ export async function syncAllDaysToFirestore(days: DayStrategy[]): Promise<boole
   }
 
   try {
-    const daysStateMap: Record<number, { isRecorded: boolean; isPublished: boolean; notes: string }> = {};
+    const daysStateMap: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string }> = {};
     const batch = writeBatch(db);
 
     days.forEach((day) => {
       daysStateMap[day.id] = {
         isRecorded: !!day.isRecorded,
+        isReviewed: !!day.isReviewed,
         isPublished: !!day.isPublished,
         notes: day.notes || '',
       };
@@ -270,7 +273,7 @@ export async function syncAllDaysToFirestore(days: DayStrategy[]): Promise<boole
 // Real-time subscription combining instant document push with collection sync
 export function subscribeToFirestoreDays(
   onData: (
-    remoteDays: Record<number, { isRecorded: boolean; isPublished: boolean; notes: string }>,
+    remoteDays: Record<number, { isRecorded: boolean; isReviewed?: boolean; isPublished: boolean; notes: string }>,
     count: number
   ) => void,
   onError?: (err: any) => void
@@ -292,14 +295,15 @@ export function subscribeToFirestoreDays(
         if (docSnap.exists()) {
           const data = docSnap.data();
           if (data && data.daysState && typeof data.daysState === 'object') {
-            const state = data.daysState as Record<string, { isRecorded?: boolean; isPublished?: boolean; notes?: string }>;
-            const result: Record<number, { isRecorded: boolean; isPublished: boolean; notes: string }> = {};
+            const state = data.daysState as Record<string, { isRecorded?: boolean; isReviewed?: boolean; isPublished?: boolean; notes?: string }>;
+            const result: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string }> = {};
             let count = 0;
             Object.keys(state).forEach((key) => {
               const numId = Number(key);
               if (!isNaN(numId)) {
                 result[numId] = {
                   isRecorded: !!state[key]?.isRecorded,
+                  isReviewed: !!state[key]?.isReviewed,
                   isPublished: !!state[key]?.isPublished,
                   notes: state[key]?.notes || '',
                 };
@@ -323,12 +327,13 @@ export function subscribeToFirestoreDays(
       daysCol,
       (snapshot) => {
         if (!snapshot.empty) {
-          const result: Record<number, { isRecorded: boolean; isPublished: boolean; notes: string }> = {};
+          const result: Record<number, { isRecorded: boolean; isReviewed: boolean; isPublished: boolean; notes: string }> = {};
           snapshot.forEach((docSnap) => {
             const data = docSnap.data();
             if (data && typeof data.id === 'number') {
               result[data.id] = {
                 isRecorded: !!data.isRecorded,
+                isReviewed: !!data.isReviewed,
                 isPublished: !!data.isPublished,
                 notes: data.notes || '',
               };
